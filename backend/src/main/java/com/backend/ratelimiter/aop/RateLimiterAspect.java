@@ -6,7 +6,6 @@ import com.backend.ratelimiter.service.RateLimitingService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -15,29 +14,23 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Component
 public class RateLimiterAspect {
 
-    @Autowired
-    private RateLimitingService rateLimitingService;
+    private final RateLimitingService rateLimitingService;
 
-    // A assinatura do @Before mudou para "capturar" a anotação e ler seus parâmetros
+    public RateLimiterAspect(RateLimitingService rateLimitingService) {
+        this.rateLimitingService = rateLimitingService;
+    }
+
     @Before("@annotation(rateLimited)")
     public void beforeRateLimitedMethod(RateLimited rateLimited) {
-
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-
         String apiKey = request.getHeader("X-API-KEY");
 
-        // Pega o nome do endpoint de dentro da anotação
-        String endpointName = rateLimited.endpointName();
-
-        if (apiKey == null || apiKey.isEmpty()) {
-            // Lançamos uma exceção diferente para chave faltando
-            throw new ApiKeyInvalidException("Header X-API-KEY está faltando.");
+        if (apiKey == null || apiKey.isBlank()) {
+            throw new ApiKeyInvalidException("Missing X-API-KEY header.");
         }
 
-        // Passamos o apiKey E o nome do endpoint para o serviço
-        if (!rateLimitingService.tryConsumeToken(apiKey, endpointName)) {
-            // Se o serviço retornar "false" (sem tokens), lança a exceção de limite
-            throw new RateLimitException("Limite de requisições excedido.");
+        if (!rateLimitingService.tryConsumeToken(apiKey, rateLimited.endpointName())) {
+            throw new RateLimitException("Rate limit exceeded.");
         }
     }
 }

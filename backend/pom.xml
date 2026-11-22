@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.backend.ratelimiter</groupId>
-    <artifactId>RateLimite-backend</artifactId>
+    <artifactId>rate-limiter-backend</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>RateLimite-backend</name>
-    <description>RateLimite-backend</description>
+    <name>rate-limiter-backend</name>
+    <description>Spring AOP Rate Limiter Backend</description>
     <url/>
     <licenses>
         <license/>
@@ -57,6 +57,14 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-mysql</artifactId>
         </dependency>
     </dependencies>
 
