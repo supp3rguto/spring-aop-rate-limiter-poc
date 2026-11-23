@@ -2,6 +2,7 @@ package com.backend.ratelimiter.aop;
 
 import com.backend.ratelimiter.exception.ApiKeyInvalidException;
 import com.backend.ratelimiter.exception.RateLimitException;
+import com.backend.ratelimiter.service.RateLimitResult;
 import com.backend.ratelimiter.service.RateLimitingService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.aspectj.lang.annotation.Aspect;
@@ -29,7 +30,8 @@ public class RateLimiterAspect {
             throw new ApiKeyInvalidException("Missing X-API-KEY header.");
         }
 
-        if (!rateLimitingService.tryConsumeToken(apiKey, rateLimited.endpointName())) {
+        RateLimitResult result = rateLimitingService.tryConsume(apiKey, rateLimited.endpointName());
+        if (!result.allowed()) {
             throw new RateLimitException("Rate limit exceeded.");
         }
     }
